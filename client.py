@@ -21,13 +21,19 @@ def send_msg(conn):
             # conn.send(msg.encode())
 
             encrypted_message, nonce = encrypt_message(key, msg)
+            # print(key)
+            # print(decrypt_message(key, encrypted_message, nonce))
+            # print(encrypted_message)
+            # print(base64.urlsafe_b64encode(encrypted_message))
+            # print(base64.urlsafe_b64decode(base64.urlsafe_b64encode(encrypted_message)))
 
             data = {
-                "ciphertext": base64.urlsafe_b64encode(encrypted_message),
-                "nonce": base64.urlsafe_b64encode(nonce),
+                "ciphertext": str(base64.urlsafe_b64encode(encrypted_message))[1:],
+                "nonce": str(base64.urlsafe_b64encode(nonce))[1:],
             }
-
-            json_data = str(data).encode('utf-8')
+            # print(data['ciphertext'])
+            json_data = json.dumps(data).encode('utf-8')
+            # print(json.loads(json_data.decode('utf-8'))['ciphertext'])
 
             conn.sendall(len(json_data).to_bytes(4, 'big'))
             conn.sendall(json_data)
@@ -41,18 +47,19 @@ def send_msg(conn):
 def recv_msg(conn):
     while True:
         try:
-            msg = conn.recv(1024).decode()
-            print(msg)
+            # msg = conn.recv(1024).decode()
+            # print(msg)
 
             data_length = int.from_bytes(conn.recv(4), 'big')
 
-            data = conn.recv(data_length).decode('utf-8')
-            message = json.loads(data)
+            if data_length:
+                data = conn.recv(data_length).decode('utf-8')
+                message = json.loads(data)
 
-            ciphertext = base64.urlsafe_b64decode(message['ciphertext'])
-            nonce = base64.urlsafe_b64decode(message['nonce'])
+                ciphertext = base64.urlsafe_b64decode(message['ciphertext'])
+                nonce = base64.urlsafe_b64decode(message['nonce'])
 
-            print(decrypt_message(key, ciphertext, nonce))
+                print(decrypt_message(key, ciphertext, nonce))
 
         except ConnectionResetError or ValueError:
             print("Couldn't send message to server, make sure the server is running")
@@ -72,7 +79,7 @@ def decrypt_message(key: bytes, ciphertext: bytes, nonce: bytes) -> str:
 
 
 def generate_key_from_password(password: str) -> (bytes, bytes):
-    salt = os.urandom(16)
+    salt = b"default_salt_value"
 
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),

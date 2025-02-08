@@ -11,8 +11,9 @@ clients = []
 maxnum_of_clients = 2
 serversocket.listen(maxnum_of_clients)
 
-def send_msg(conn, id, msg):
+def send_msg(conn, id, msg, length):
     try:
+        conn.sendall(length.to_bytes(4, 'big'))
         conn.sendall(msg)
 
     except ConnectionResetError:
@@ -29,7 +30,7 @@ def recv_snd_msg(conn, id):
             data = conn.recv(data_length)
             for client in clients:
                 if client[1] != id:
-                    send_msg(client[0], client[1], data)
+                    send_msg(client[0], client[1], data, data_length)
 
 def handle_client(conn, id):
     # send_msg(conn, id, f"Welcome to the chat room! Your id is {id}")
