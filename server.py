@@ -14,7 +14,7 @@ class ClientInfo:
 
 
 class Server:
-    def __init__(self, port, gui, ip="localhost", maxclients=2):
+    def __init__(self, port, gui, ip="", maxclients=2):
         self.ip = ip
         self.port = port
         self.connected_clients = []
