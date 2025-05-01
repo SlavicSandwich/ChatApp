@@ -160,7 +160,7 @@ class Main:
             return
 
         if server.is_port_available(args.port):
-            self.server = server.Server(args.port)
+            self.server = server.Server(args.port, gui=self.gui)
             self.process_server = threading.Thread(target=self.server.run_server)
             self.running_server = True
             self.process_server.start()

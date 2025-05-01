@@ -14,12 +14,13 @@ class ClientInfo:
 
 
 class Server:
-    def __init__(self, port, ip="localhost", maxclients=2):
+    def __init__(self, port, gui, ip="localhost", maxclients=2):
         self.ip = ip
         self.port = port
         self.connected_clients = []
         self.client_ids = set()
         self.max_clients = maxclients
+        self.gui = gui
 
         self.serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.serversocket.bind((self.ip, self.port))
@@ -53,6 +54,7 @@ class Server:
         self.connected_clients.append(client)
         thread = threading.Thread(target=self.handle_client, args=(client,))
         thread.start()
+        self.gui.console_message("New client added")
 
     def handle_client(self, client: ClientInfo):
         while True:
